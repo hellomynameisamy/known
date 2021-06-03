@@ -30,7 +30,7 @@ kind: Deployment
 metadata:
   name: known
   labels:
-    app: 
+    app: known
 spec:
   selector:
     matchLabels:
