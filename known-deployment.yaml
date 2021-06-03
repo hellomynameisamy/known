@@ -45,7 +45,7 @@ spec:
         tier: frontend
     spec:
       containers:
-      - image: known:0.9.9
+      - image: known:latest
         name: known
         env:
         - name: KNOWN_DB_HOST
