@@ -1,0 +1,67 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: known
+  labels:
+    app: known
+spec:
+  ports:
+    - port: 80
+  selector:
+    app: known
+    tier: frontend
+  type: LoadBalancer
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: k-pv-claim
+  labels:
+    app: known
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: known
+  labels:
+    app: 
+spec:
+  selector:
+    matchLabels:
+      app: known
+      tier: frontend
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: known
+        tier: frontend
+    spec:
+      containers:
+      - image: known:0.9.9
+        name: known
+        env:
+        - name: KNOWN_DB_HOST
+          value: known-mysql
+        - name: KNOWN_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-pass
+              key: password
+        ports:
+        - containerPort: 80
+          name: known
+        volumeMounts:
+        - name: known-persistent-storage
+          mountPath: /var/www/html
+      volumes:
+      - name: known-persistent-storage
+        persistentVolumeClaim:
+          claimName: k-pv-claim
